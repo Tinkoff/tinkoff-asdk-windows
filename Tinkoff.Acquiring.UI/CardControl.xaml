@@ -1,0 +1,548 @@
+﻿<!--
+// Copyright © 2016 Tinkoff Bank
+//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//  
+//     http://www.apache.org/licenses/LICENSE-2.0
+//  
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+-->
+    
+<UserControl x:Class="Tinkoff.Acquiring.UI.CardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="using:Tinkoff.Acquiring.UI.Behaviors"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:extensions="using:Tinkoff.Acquiring.UI.Extensions"
+             xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="using:Tinkoff.Acquiring.UI.Converters"
+             mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <converters:UriToBitmapImageConverter x:Key="UriToBitmapImageConverter" />
+
+        <Color x:Key="ManateeColor">#FF9299A2</Color>
+        <Color x:Key="ErrorColor">#FFD0011B</Color>
+        <Color x:Key="HighlightColor">#FF429EDC</Color>
+
+        <SolidColorBrush x:Key="ManateeBrush" Color="{StaticResource ManateeColor}" />
+        <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+        <SolidColorBrush x:Key="HighlightBrush" Color="{StaticResource HighlightColor}" />
+
+        <Style x:Key="BorderlessBoxStyle" TargetType="Control">
+            <Setter Property="MinWidth" Value="{ThemeResource TextControlThemeMinWidth}" />
+            <Setter Property="Foreground" Value="{ThemeResource TextBoxForegroundThemeBrush}" />
+            <Setter Property="Background" Value="{ThemeResource TextBoxBackgroundThemeBrush}" />
+            <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderThemeBrush}" />
+            <Setter Property="BorderThickness" Value="{ThemeResource TextControlBorderThemeThickness}" />
+            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+            <Setter Property="FontSize" Value="{ThemeResource ContentControlFontSize}" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False" />
+            <Setter Property="Padding" Value="0 9 0 12" />
+        </Style>
+
+        <Style x:Key="BorderlessTextBoxStyle"
+               BasedOn="{StaticResource BorderlessBoxStyle}"
+               TargetType="TextBox">
+            <Setter Property="SelectionHighlightColor" Value="{Binding FocusedForeground, Mode=OneWay}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <ScrollViewer x:Name="ContentElement"
+                                          Grid.Row="1"
+                                          Margin="{TemplateBinding BorderThickness}"
+                                          AutomationProperties.AccessibilityView="Raw"
+                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                          HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                          IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                          IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
+                                          IsTabStop="False"
+                                          IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
+                                          Padding="{TemplateBinding Padding}"
+                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                          VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                          ZoomMode="Disabled" />
+
+                            <ContentControl x:Name="PlaceholderTextContentPresenter"
+                                            Grid.Row="1"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
+                                            Margin="0 0 0 0"
+                                            VerticalAlignment="Bottom"
+                                            Content="{TemplateBinding PlaceholderText}"
+                                            FontSize="{StaticResource ContentControlFontSize}"
+                                            FontWeight="Normal"
+                                            Foreground="{StaticResource ManateeBrush}"
+                                            IsHitTestVisible="False"
+                                            IsTabStop="False"
+                                            Padding="{TemplateBinding Padding}" />
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="ContentElement.Foreground" Value="{ThemeResource TextBoxDisabledForegroundThemeBrush}"/>
+                                            <Setter Target="PlaceholderTextContentPresenter.Foreground" Value="{ThemeResource TextBoxDisabledForegroundThemeBrush}"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver" />
+                                    <VisualState x:Name="Focused" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BorderlessPasswordBoxStyle"
+               BasedOn="{StaticResource BorderlessBoxStyle}"
+               TargetType="PasswordBox">
+            <Setter Property="SelectionHighlightColor" Value="{ThemeResource TextSelectionHighlightColorThemeBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <ScrollViewer x:Name="ContentElement"
+                                          Grid.Row="1"
+                                          Margin="{TemplateBinding BorderThickness}"
+                                          AutomationProperties.AccessibilityView="Raw"
+                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                          HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                          IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                          IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
+                                          IsTabStop="False"
+                                          IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
+                                          Padding="{TemplateBinding Padding}"
+                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                          VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                          ZoomMode="Disabled" />
+
+                            <ContentControl x:Name="PlaceholderTextContentPresenter"
+                                            Grid.Row="1"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
+                                            Margin="0 0 0 0"
+                                            VerticalAlignment="Bottom"
+                                            Content="{TemplateBinding PlaceholderText}"
+                                            FontSize="{StaticResource ContentControlFontSize}"
+                                            FontWeight="Normal"
+                                            Foreground="{StaticResource ManateeBrush}"
+                                            IsHitTestVisible="False"
+                                            IsTabStop="False"
+                                            Padding="{TemplateBinding Padding}" />
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="ContentElement.Foreground" Value="{ThemeResource TextBoxDisabledForegroundThemeBrush}"/>
+                                            <Setter Target="PlaceholderTextContentPresenter.Foreground" Value="{ThemeResource TextBoxDisabledForegroundThemeBrush}"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver" />
+                                    <VisualState x:Name="Focused" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Name="AdditionalButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="BorderElement"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="{TemplateBinding BorderThickness}" />
+                            <Border x:Name="BackgroundElement"
+                                    Margin="{TemplateBinding BorderThickness}"
+                                    Background="{ThemeResource TextBoxButtonBackgroundThemeBrush}">
+                                <FontIcon x:Name="GlyphElement"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          AutomationProperties.AccessibilityView="Raw"
+                                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          FontStyle="Normal"
+                                          Foreground="{ThemeResource TextBoxButtonForegroundThemeBrush}"
+                                          Glyph="{TemplateBinding Content}" />
+                            </Border>
+                            
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="BackgroundElement.Background" Value="{ThemeResource TextBoxButtonPointerOverBackgroundThemeBrush}"/>
+                                            <Setter Target="GlyphElement.Foreground" Value="{ThemeResource TextBoxButtonPointerOverForegroundThemeBrush}"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="BackgroundElement.Background" Value="{ThemeResource TextBoxButtonPressedBackgroundThemeBrush}"/>
+                                            <Setter Target="GlyphElement.Foreground" Value="{ThemeResource TextBoxButtonPressedForegroundThemeBrush}"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="BackgroundElement.Opacity" Value="0"/>
+                                            <Setter Target="BorderElement.Opacity" Value="0"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Storyboard x:Name="NumberInputSlideStoryboard">
+            <DoubleAnimation x:Name="NumberInputSlideTimeline"
+                             Duration="0:0:0.5"
+                             Storyboard.TargetName="NumberInputTranslateTransform"
+                             Storyboard.TargetProperty="X">
+                <DoubleAnimation.EasingFunction>
+                    <ExponentialEase EasingMode="EaseOut" Exponent="3" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CardNumberInputTextBox" Storyboard.TargetProperty="(Canvas.ZIndex)">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.0" Value="0" />
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <Storyboard x:Name="DataInputSlideStoryboard">
+            <DoubleAnimation x:Name="DataInputSlideTimeline"
+                             Duration="0:0:0.5"
+                             Storyboard.TargetName="DataInputTranslateTransform"
+                             Storyboard.TargetProperty="X">
+                <DoubleAnimation.EasingFunction>
+                    <ExponentialEase EasingMode="EaseOut" Exponent="3" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Duration="0:0:0"
+                             Storyboard.TargetName="DataInputGrid"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1" />
+        </Storyboard>
+
+        <Storyboard x:Name="NumberInputRestoreStoryboard">
+            <DoubleAnimation x:Name="NumberInputRestoreTimeline"
+                             Duration="0:0:0.5"
+                             Storyboard.TargetName="NumberInputTranslateTransform"
+                             Storyboard.TargetProperty="X">
+                <DoubleAnimation.EasingFunction>
+                    <ExponentialEase EasingMode="EaseOut" Exponent="3" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CardNumberInputTextBox" Storyboard.TargetProperty="(Canvas.ZIndex)">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.0" Value="3" />
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <Storyboard x:Name="DataInputRestoreStoryboard">
+            <DoubleAnimation x:Name="DataInputRestoreTimeline"
+                             Duration="0:0:0.5"
+                             Storyboard.TargetName="DataInputTranslateTransform"
+                             Storyboard.TargetProperty="X">
+                <DoubleAnimation.EasingFunction>
+                    <ExponentialEase EasingMode="EaseOut" Exponent="3" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Duration="0:0:0.5"
+                             Storyboard.TargetName="DataInputGrid"
+                             Storyboard.TargetProperty="Opacity" />
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Border x:Name="WrapperBorder"
+            Height="48"
+            Background="{x:Bind Background, Mode=OneWay}"
+            BorderBrush="{x:Bind BorderBrush, Mode=OneWay}"
+            BorderThickness="{x:Bind BorderThickness, Mode=OneWay}">
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid x:Name="BrandLogoGrid"
+                  Width="32"
+                  Height="24"
+                  Margin="10"
+                  VerticalAlignment="Center">
+                <Path x:Name="BrandLogoDefault"
+                      VerticalAlignment="Center"
+                      Data="M3.95224781,13 C3.62347413,13 3.36644033,12.8433838 3.36644033,12.5 C3.36644033,12.1566162 3.61938477,12 3.95224781,12 L8.1895886,12 C8.63159183,12 8.77539627,12.1947021 8.77539609,12.5 C8.77539591,12.8052979 8.63214115,13 8.1895886,13 L3.95224781,13 Z M1.17161496,3.64984594 L20.8293614,3.64984594 L20.8293614,2.56467647 C20.8293614,1.80466252 20.2123108,1.18696587 19.4556428,1.18696587 L2.54533351,1.18696587 C1.78768917,1.18696587 1.17161496,1.80466252 1.17161496,2.56467647 L1.17161496,3.64984594 Z M1.17161496,6.68990175 L20.8293614,6.68990175 L20.8293614,4.8358235 L1.17161496,4.8358235 L1.17161496,6.68990175 Z M1.17161496,7.87686762 L1.17161496,14.4353235 C1.17161496,15.1953375 1.78768917,15.8130341 2.54533351,15.8130341 L19.4556428,15.8130341 C20.2123108,15.8130341 20.8293614,15.1953375 20.8293614,14.4353235 L20.8293614,7.87686762 L1.17161496,7.87686762 Z M19.4556428,17 L2.54533351,17 C1.14134824,17 0,15.8496018 0,14.4353235 L0,2.56467647 C0,1.15039823 1.14134824,0 2.54533351,0 L19.4556428,0 C20.8586518,0 22,1.15039823 22,2.56467647 L22,14.4353235 C22,15.8496018 20.8586518,17 19.4556428,17 L19.4556428,17 Z"
+                      Fill="Black" />
+                <Image x:Name="BrandLogoImage"
+                       VerticalAlignment="Center"
+                       Source="{x:Bind BrandLogo, Mode=OneWay, Converter={StaticResource UriToBitmapImageConverter}}" />
+            </Grid>
+
+            <Grid x:Name="FormGrid"
+                  Grid.Column="1"
+                  Margin="-4 0 0 0"
+                  VerticalAlignment="Center"
+                  Background="Transparent">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="1"
+                        HorizontalAlignment="Stretch"
+                        extensions:FrameworkElementExtensions.ClipToBounds="True">
+
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox x:Name="CardNumberInputTextBox"
+                                 Grid.Column="0"
+                                 Grid.ColumnSpan="3"
+                                 Margin="0 0 0 1"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                 Canvas.ZIndex="3"
+                                 InputScope="NumericPin"
+                                 GotFocus="CardNumberInputTextBox_OnGotFocus"
+                                 LostFocus="CardNumberInputTextBox_OnLostFocus"
+                                 PlaceholderText="{x:Bind CardNumberPlaceholder, Mode=OneWay}"
+                                 Style="{StaticResource BorderlessTextBoxStyle}"
+                                 TabIndex="12321"
+                                 TextAlignment="Left"
+                                 TextChanging="CardNumberInputTextBox_OnTextChanging">
+                            <interactivity:Interaction.Behaviors>
+                                <behaviors:ChangeForegroundOnGotFocusBehavior x:Name="CardNumberForegroundChanger"
+                                                                              FocusedForeground="{x:Bind FocusedForeground, Mode=OneWay}"
+                                                                              UnfocusedForeground="{x:Bind UnfocusedForeground, Mode=OneWay}" />
+                            </interactivity:Interaction.Behaviors>
+                            <TextBox.RenderTransform>
+                                <TranslateTransform x:Name="NumberInputTranslateTransform" />
+                            </TextBox.RenderTransform>
+                        </TextBox>
+
+                        <Grid x:Name="DataInputGrid"
+                              Grid.Column="2"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center"
+                              Opacity="0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RenderTransform>
+                                <TranslateTransform x:Name="DataInputTranslateTransform" X="0" />
+                            </Grid.RenderTransform>
+
+                            <TextBox x:Name="DateTextBox"
+                                     Grid.Column="0"
+                                     Margin="0 1 0 0"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Center"
+                                     VerticalContentAlignment="Center"
+                                     BorderThickness="0"
+                                     InputScope="NumericPin"
+                                     KeyDown="DateTextBox_OnKeyDown"
+                                     PlaceholderText="{x:Bind ExpiryDatePlaceholder, Mode=OneWay}"
+                                     Style="{StaticResource BorderlessTextBoxStyle}"
+                                     TextChanging="DateTextBox_OnTextChanging">
+                                <interactivity:Interaction.Behaviors>
+                                    <behaviors:ChangeForegroundOnGotFocusBehavior x:Name="DateForegroundChanger"
+                                                                                  FocusedForeground="{x:Bind FocusedForeground, Mode=OneWay}"
+                                                                                  UnfocusedForeground="{x:Bind UnfocusedForeground, Mode=OneWay}" />
+                                </interactivity:Interaction.Behaviors>
+
+                            </TextBox>
+
+                            <PasswordBox x:Name="SecurityCodePasswordBox"
+                                         Grid.Column="1"
+                                         VerticalAlignment="Center"
+                                         VerticalContentAlignment="Center"
+                                         BorderThickness="0"
+                                         KeyDown="SecurityCodeTextBox_OnKeyDown"
+                                         MaxLength="3"
+                                         InputScope="NumericPin"
+                                         PasswordChanged="SecurityCodePasswordBox_OnPasswordChanged"
+                                         PlaceholderText="{x:Bind CvcPlaceholder, Mode=OneWay}"
+                                         Style="{StaticResource BorderlessPasswordBoxStyle}">
+                                <interactivity:Interaction.Behaviors>
+                                    <behaviors:ChangeForegroundOnGotFocusBehavior x:Name="SecurityCodeForegroundChanger"
+                                                                                  FocusedForeground="{x:Bind FocusedForeground, Mode=OneWay}"
+                                                                                  UnfocusedForeground="{x:Bind UnfocusedForeground, Mode=OneWay}" />
+                                </interactivity:Interaction.Behaviors>
+                            </PasswordBox>
+                        </Grid>
+
+                        <StackPanel Grid.Column="3"
+                                    HorizontalAlignment="Right"
+                                    Orientation="Horizontal">
+                            <Button x:Name="NextStateButton"
+                                    Width="42"
+                                    VerticalAlignment="Stretch"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Canvas.ZIndex="99"
+                                    Click="NextStateButton_OnClick"
+                                    Content="&#xEA47;"
+                                    IsTabStop="False"
+                                    Style="{StaticResource AdditionalButtonStyle}"
+                                    Visibility="Collapsed" />
+
+                            <Button x:Name="DeleteNumberButton"
+                                    Width="42"
+                                    VerticalAlignment="Stretch"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Canvas.ZIndex="99"
+                                    Click="DeleteNumberButton_OnClick"
+                                    Content="&#xE10A;"
+                                    IsTabStop="False"
+                                    Style="{StaticResource AdditionalButtonStyle}"
+                                    Visibility="Collapsed" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+        </Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdditionalButtonsGroup">
+                <VisualState x:Name="ButtonsInvisible" />
+                <VisualState x:Name="CrossVisible" />
+                <VisualState x:Name="NextButtonVisible" />
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="ValidationStatesGroup">
+                <VisualState x:Name="NotValidatedState" />
+
+                <VisualState x:Name="CardNumberInvalidState">
+                    <VisualState.Setters>
+                        <Setter Target="CardNumberForegroundChanger.FocusedForeground" Value="{x:Bind ErrorBrush, Mode=OneWay}"/>
+                        <Setter Target="CardNumberForegroundChanger.UnfocusedForeground" Value="{x:Bind ErrorBrush, Mode=OneWay}"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="ExpiryDateInvalidState">
+                    <VisualState.Setters>
+                        <Setter Target="DateForegroundChanger.FocusedForeground" Value="{x:Bind ErrorBrush, Mode=OneWay}"/>
+                        <Setter Target="DateForegroundChanger.UnfocusedForeground" Value="{x:Bind ErrorBrush, Mode=OneWay}"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="SecurityCodeInvalidState">
+                    <VisualState.Setters>
+                        <Setter Target="SecurityCodeForegroundChanger.FocusedForeground" Value="{x:Bind ErrorBrush, Mode=OneWay}"/>
+                        <Setter Target="SecurityCodeForegroundChanger.UnfocusedForeground" Value="{x:Bind ErrorBrush, Mode=OneWay}"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="PaymentSystemGroup">
+                <VisualState x:Name="DefaultPaymentSystemState" />
+
+                <VisualState x:Name="VisaState">
+                    <VisualState.Setters>
+                        <Setter Target="BrandLogoDefault.Visibility" Value="Collapsed"/>
+                        <Setter Target="BrandLogoImage.Source" Value="Assets/PaymentSystems/visa.png"/>
+                    </VisualState.Setters>
+
+                </VisualState>
+
+                <VisualState x:Name="MastercardState">
+                    <VisualState.Setters>
+                        <Setter Target="BrandLogoDefault.Visibility" Value="Collapsed"/>
+                        <Setter Target="BrandLogoImage.Source" Value="Assets/PaymentSystems/mastercard.png"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="MaestroState">
+                    <VisualState.Setters>
+                        <Setter Target="BrandLogoDefault.Visibility" Value="Collapsed"/>
+                        <Setter Target="BrandLogoImage.Source" Value="Assets/PaymentSystems/maestro.png"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="AdditionalButtonsVisibilityGroup">
+                <VisualState x:Name="AdditionalButtonsInvisibleState" />
+
+                <VisualState x:Name="NextStateButtonVisibleState">
+                    <VisualState.Setters>
+                        <Setter Target="NextStateButton.Visibility" Value="Visible"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="DeleteNumberButtonVisibleState">
+                    <VisualState.Setters>
+                        <Setter Target="DeleteNumberButton.Visibility" Value="Visible"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="WrapperStates">
+                <VisualState x:Name="DefaultState" />
+
+                <VisualState x:Name="FocusedState">
+                    <VisualState.Setters>
+                        <Setter Target="WrapperBorder.BorderBrush" Value="{x:Bind FocusedForeground, Mode=OneWay}"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="InvalidState">
+                    <VisualState.Setters>
+                        <Setter Target="WrapperBorder.BorderBrush" Value="{x:Bind ErrorBrush, Mode=OneWay}"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </Border>
+</UserControl>

@@ -1,0 +1,139 @@
+﻿<!--
+// Copyright © 2016 Tinkoff Bank
+//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//  
+//     http://www.apache.org/licenses/LICENSE-2.0
+//  
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+-->
+
+<Page x:Class="Tinkoff.Acquiring.UI.CardView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:converters="using:Tinkoff.Acquiring.UI.Converters"
+      DataContext="{Binding RelativeSource={RelativeSource Self}}"
+      Loading="CardView_OnLoading">
+
+    <Page.Resources>
+        <Color x:Key="OxfordBlue">#FF3E4757</Color>
+        <Color x:Key="Porcelain">#FFEAECEE</Color>
+        <Color x:Key="MineShaft">#FF333333</Color>
+        <Color x:Key="HavelockBlue">#FF429EDC</Color>
+        <Color x:Key="GrayChateau">#FFA7AEB4</Color>
+        
+        <SolidColorBrush x:Key="PayButtonForegroundBrush" Color="{StaticResource MineShaft}" />
+        <SolidColorBrush x:Key="TitleBackgroundBrush" Color="{StaticResource OxfordBlue}" />
+        <SolidColorBrush x:Key="LayoutRootBackgroundBrush" Color="{StaticResource Porcelain}" />
+        <SolidColorBrush x:Key="HyperlinkButtonForegroundBrush" Color="{StaticResource HavelockBlue}" />
+        <SolidColorBrush x:Key="ListHeaderForegroundBrush" Color="{StaticResource GrayChateau}" />
+
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:PaymentSystemConverter x:Key="PaymentSystemConverter"
+                                           Maestro="Assets/PaymentSystems/maestro.png"
+                                           MasterCard="Assets/PaymentSystems/mastercard.png"
+                                           Visa="Assets/PaymentSystems/visa.png" />
+    </Page.Resources>
+
+    <Grid Background="{StaticResource LayoutRootBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel x:Name="TitlePanel"
+                    Grid.Row="0"
+                    Background="{StaticResource TitleBackgroundBrush}">
+            <TextBlock FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Padding="12"
+                       Text="ВЫБОР КАРТЫ" />
+        </StackPanel>
+
+        <ListView x:Name="ListView"
+                  Grid.Row="1"
+                  IsItemClickEnabled="True"
+                  ItemClick="OnItemClick"
+                  ItemsSource="{x:Bind Cards}"
+                  SelectionMode="None">
+
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            
+            <ListView.HeaderTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <HyperlinkButton Margin="12" Click="OnNewCardClick">
+                            <TextBlock FontSize="16"
+                                   Foreground="{StaticResource HyperlinkButtonForegroundBrush}"
+                                   Text="Ввести данные новой карты" />
+                        </HyperlinkButton>
+                        
+                        <TextBlock Text="{Binding}"
+                               Margin="12"
+                               FontSize="18"
+                               TextWrapping="WrapWholeWords"
+                               Visibility="{Binding Converter={StaticResource StringToVisibilityConverter}}"
+                               Foreground="{StaticResource ListHeaderForegroundBrush}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.HeaderTemplate>
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Holding="OnItemHolding" RightTapped="OnItemRightTapped" Margin="12, 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <FlyoutBase.AttachedFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Click="OnRemoveItemClick" Text="Удалить" />
+                            </MenuFlyout>
+                        </FlyoutBase.AttachedFlyout>
+
+                        <Image Width="32"
+                               Height="32"
+                               Source="{Binding Card, Converter={StaticResource PaymentSystemConverter}}"
+                               Stretch="Uniform" />
+
+                        <TextBlock Grid.Column="1"
+                                   Padding="12"
+                                   FontSize="16"
+                                   Foreground="{StaticResource PayButtonForegroundBrush}"
+                                   Text="{Binding Card.Pan}" />
+                        
+                        <SymbolIcon Grid.Column="2"
+                                    Symbol="Accept"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding Selected, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <ProgressBar x:Name="ProgressBar"
+                     Grid.Row="0"
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Top"
+                     IsIndeterminate="True"
+                     Visibility="Collapsed"
+                     Foreground="White" />
+    </Grid>
+</Page>

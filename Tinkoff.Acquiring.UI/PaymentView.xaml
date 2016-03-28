@@ -1,0 +1,337 @@
+﻿<!--
+// Copyright © 2016 Tinkoff Bank
+//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//  
+//     http://www.apache.org/licenses/LICENSE-2.0
+//  
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+-->
+
+<Page x:Class="Tinkoff.Acquiring.UI.PaymentView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:behaviors="using:Tinkoff.Acquiring.UI.Behaviors"
+      xmlns:converters="using:Tinkoff.Acquiring.UI.Converters"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:ui="using:Tinkoff.Acquiring.UI">
+
+    <Page.Resources>
+        <Color x:Key="OxfordBlue">#FF3E4757</Color>
+        <Color x:Key="Porcelain">#FFEAECEE</Color>
+        <Color x:Key="SilverSand">#FFC7C9CC</Color>
+        <Color x:Key="Sunglow">#FFFFDD2C</Color>
+        <Color x:Key="MineShaft">#FF333333</Color>
+        <Color x:Key="GrayChateau">#FFA7AEB4</Color>
+        <Color x:Key="HavelockBlue">#FF429EDC</Color>
+        <Color x:Key="Monza">#FFD0011B</Color>
+
+        <SolidColorBrush x:Key="LayoutRootBackgroundBrush" Color="{StaticResource Porcelain}" />
+        <SolidColorBrush x:Key="TitleBackgroundBrush" Color="{StaticResource OxfordBlue}" />
+        <SolidColorBrush x:Key="AppBorderBrush" Color="{StaticResource SilverSand}" />
+        <SolidColorBrush x:Key="PayButtonBackgroundBrush" Color="{StaticResource Sunglow}" />
+        <SolidColorBrush x:Key="PayButtonForegroundBrush" Color="{StaticResource MineShaft}" />
+        <SolidColorBrush x:Key="CommonTextBrush" Color="{StaticResource GrayChateau}" />
+        <SolidColorBrush x:Key="CardSelectorForegroundBrush" Color="{StaticResource HavelockBlue}" />
+        <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource Monza}" />
+
+        <Style x:Key="EmailTextBoxStyle" TargetType="TextBox">
+            <Setter Property="MinWidth" Value="{ThemeResource TextControlThemeMinWidth}" />
+            <Setter Property="Foreground" Value="{ThemeResource TextBoxForegroundThemeBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderThemeBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+            <Setter Property="FontSize" Value="{ThemeResource ContentControlFontSize}" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False" />
+            <Setter Property="Padding" Value="12" />
+            <Setter Property="SelectionHighlightColor" Value="{StaticResource CardSelectorForegroundBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Grid.Resources>
+                                <Style x:Name="DeleteButtonStyle" TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Grid x:Name="ButtonLayoutGrid"
+                                                      Background="{ThemeResource TextBoxButtonBackgroundThemeBrush}"
+                                                      BorderBrush="{ThemeResource TextBoxButtonBorderThemeBrush}"
+                                                      BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <TextBlock x:Name="GlyphElement"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               AutomationProperties.AccessibilityView="Raw"
+                                                               FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                               FontSize="12"
+                                                               FontStyle="Normal"
+                                                               Foreground="{ThemeResource SystemControlForegroundChromeBlackMediumBrush}"
+                                                               Text="&#xE10A;" />
+
+                                                    <VisualStateManager.VisualStateGroups>
+                                                        <VisualStateGroup x:Name="CommonStates">
+                                                            <VisualState x:Name="Normal" />
+                                                            <VisualState x:Name="PointerOver">
+                                                                <VisualState.Setters>
+                                                                    <Setter Target="GlyphElement.Foreground" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
+                                                                </VisualState.Setters>
+                                                            </VisualState>
+                                                            <VisualState x:Name="Pressed">
+                                                                <VisualState.Setters>
+                                                                    <Setter Target="ButtonLayoutGrid.Background" Value="{ThemeResource TextBoxButtonPressedBackgroundThemeBrush}" />
+                                                                    <Setter Target="GlyphElement.Foreground" Value="{ThemeResource TextBoxButtonPressedForegroundThemeBrush}" />
+                                                                </VisualState.Setters>
+                                                            </VisualState>
+                                                            <VisualState x:Name="Disabled">
+                                                                <VisualState.Setters>
+                                                                    <Setter Target="ButtonLayoutGrid.Opacity" Value="0" />
+                                                                </VisualState.Setters>
+                                                            </VisualState>
+                                                        </VisualStateGroup>
+                                                    </VisualStateManager.VisualStateGroups>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Border x:Name="BackgroundElement"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="2"
+                                    Margin="{TemplateBinding BorderThickness}"
+                                    Background="{TemplateBinding Background}"
+                                    Opacity="{ThemeResource TextControlBackgroundRestOpacity}" />
+                            <Border x:Name="BorderElement"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="2"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}" />
+                            <ContentPresenter x:Name="HeaderContentPresenter"
+                                              Grid.Row="0"
+                                              Grid.ColumnSpan="2"
+                                              Margin="0,0,0,8"
+                                              Content="{TemplateBinding Header}"
+                                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              FontWeight="Normal"
+                                              Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                              Visibility="Collapsed"
+                                              x:DeferLoadStrategy="Lazy" />
+                            <ScrollViewer x:Name="ContentElement"
+                                          Grid.Row="1"
+                                          Margin="{TemplateBinding BorderThickness}"
+                                          AutomationProperties.AccessibilityView="Raw"
+                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                          HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                          IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                          IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
+                                          IsTabStop="False"
+                                          IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
+                                          Padding="{TemplateBinding Padding}"
+                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                          VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                          ZoomMode="Disabled" />
+                            <ContentControl x:Name="PlaceholderTextContentPresenter"
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="2"
+                                            Margin="{TemplateBinding BorderThickness}"
+                                            Content="{TemplateBinding PlaceholderText}"
+                                            Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"
+                                            IsHitTestVisible="False"
+                                            IsTabStop="False"
+                                            Padding="{TemplateBinding Padding}" />
+                            <Button x:Name="DeleteButton"
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    MinWidth="34"
+                                    Margin="{ThemeResource HelperButtonThemePadding}"
+                                    VerticalAlignment="Stretch"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    FontSize="{TemplateBinding FontSize}"
+                                    IsTabStop="False"
+                                    Style="{StaticResource DeleteButtonStyle}"
+                                    Visibility="Collapsed" />
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="HeaderContentPresenter.Foreground" Value="{ThemeResource SystemControlDisabledBaseLowBrush}" />
+                                            <Setter Target="BackgroundElement.Background" Value="{ThemeResource SystemControlDisabledTransparentBrush}" />
+                                            <Setter Target="BorderElement.Background" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
+                                            <Setter Target="BorderElement.BorderBrush" Value="{ThemeResource SystemControlDisabledBaseLowBrush}" />
+                                            <Setter Target="ContentElement.Foreground" Value="{ThemeResource SystemControlDisabledChromeDisabledLowBrush}" />
+                                            <Setter Target="PlaceholderTextContentPresenter.Foreground" Value="{ThemeResource SystemControlDisabledChromeDisabledLowBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="BorderElement.BorderBrush" Value="{ThemeResource SystemControlHighlightChromeAltLowBrush}" />
+                                            <Setter Target="BackgroundElement.Opacity" Value="{ThemeResource TextControlBackgroundHoverOpacity}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Focused">
+                                        <VisualState.Setters>
+                                            <Setter Target="PlaceholderTextContentPresenter.Foreground" Value="{ThemeResource SystemControlPageTextChromeBlackMediumLowBrush}" />
+                                            <Setter Target="BackgroundElement.Background" Value="Transparent" />
+                                            <Setter Target="BackgroundElement.Opacity" Value="{ThemeResource TextControlBackgroundFocusedOpacity}" />
+                                            <Setter Target="BorderElement.BorderBrush" Value="{StaticResource CardSelectorForegroundBrush}" />
+                                            <Setter Target="ContentElement.Foreground" Value="{StaticResource CardSelectorForegroundBrush}" />
+                                            <Setter Target="ContentElement.RequestedTheme" Value="Light" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="ButtonStates">
+                                    <VisualState x:Name="ButtonVisible">
+                                        <VisualState.Setters>
+                                            <Setter Target="DeleteButton.Visibility" Value="Visible" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="ButtonCollapsed" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <converters:BoolToBrushConverter x:Key="BoolToBrushConverter"
+                                         FalseBrush="{StaticResource ErrorBrush}"
+                                         TrueBrush="{StaticResource TextBoxForegroundThemeBrush}" />
+    </Page.Resources>
+
+    <Grid Background="{StaticResource LayoutRootBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel x:Name="TitlePanel" Background="{StaticResource TitleBackgroundBrush}">
+            <TextBlock FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Padding="12"
+                       Text="ОПЛАТА" />
+        </StackPanel>
+
+        <ScrollViewer x:Name="ContentViewer" Grid.Row="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="12, 16, 12, 0">
+                    <StackPanel BorderBrush="{StaticResource AppBorderBrush}"
+                                BorderThickness="0, 0, 0, 1"
+                                Padding="0, 0, 0, 4">
+                        <TextBlock x:Name="ProductTitle"
+                                   FontSize="18"
+                                   Foreground="Black" />
+                        <TextBlock x:Name="ProductDescription"
+                                   Foreground="{StaticResource CommonTextBrush}"
+                                   MaxLines="2"
+                                   TextTrimming="CharacterEllipsis"
+                                   TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <Grid Margin="0, 4, 0, 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Foreground="{StaticResource CommonTextBrush}" Text="на сумму:" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock x:Name="ProductAmount"
+                                       FontSize="15"
+                                       Foreground="{StaticResource TitleBackgroundBrush}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Margin="0, 32, 0, 0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Margin="0, 0, 0, 8"
+                                       Text="Номер карты для оплаты" />
+
+                            <HyperlinkButton x:Name="SelectCardButton"
+                                             Grid.Column="1"
+                                             Margin="0, 0, 0, 8"
+                                             Click="OnSelectCardClick"
+                                             Padding="0">
+                                <TextBlock Foreground="{StaticResource CardSelectorForegroundBrush}" Text="Изменить" />
+                            </HyperlinkButton>
+                        </Grid>
+
+                        <ui:CardControl x:Name="CardControl"
+                                        BorderThickness="1"
+                                        CardModel="{x:Bind CardModel, Mode=TwoWay}"
+                                        Loading="PaymentView_OnLoading" />
+                    </StackPanel>
+
+                    <StackPanel Margin="0, 16, 0, 32">
+                        <TextBlock Margin="0, 0, 0, 8" Text="E-mail для квитанции" />
+                        <TextBox x:Name="Email"
+                                 PlaceholderText="E-mail"
+                                 Style="{StaticResource EmailTextBoxStyle}"
+                                 TextChanging="Email_OnTextChanging"
+                                 MaxLength="256">
+                            <interactivity:Interaction.Behaviors>
+                                <behaviors:ChangeForegroundOnGotFocusBehavior x:Name="EmailForegroundChanger"
+                                                                              FocusedForeground="{StaticResource CardSelectorForegroundBrush}"
+                                                                              UnfocusedForeground="{x:Bind IsEmailValid, Mode=OneWay, Converter={StaticResource BoolToBrushConverter}}" />
+                            </interactivity:Interaction.Behaviors>
+
+                        </TextBox>
+                    </StackPanel>
+
+                    <Button HorizontalAlignment="Stretch"
+                            Background="{StaticResource PayButtonBackgroundBrush}"
+                            Click="OnPayClick"
+                            Content="Оплатить"
+                            Foreground="{StaticResource PayButtonForegroundBrush}"
+                            Padding="12" />
+                </StackPanel>
+
+                <Image Grid.Row="1"
+                       Margin="12"
+                       HorizontalAlignment="Stretch"
+                       Source="Assets/SecurityLogos.png" />
+            </Grid>
+        </ScrollViewer>
+
+        <ProgressBar x:Name="ProgressBar"
+                     Grid.Row="0"
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Top"
+                     Foreground="White"
+                     IsIndeterminate="True"
+                     Visibility="Collapsed" />
+    </Grid>
+</Page>
