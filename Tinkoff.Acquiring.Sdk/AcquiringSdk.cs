@@ -32,7 +32,7 @@ namespace Tinkoff.Acquiring.Sdk
     {
         #region Fields
 
-        private static string API_URL_RELEASE = "https://rest-api.tcsbank.ru/rest/";
+        private static string API_URL_RELEASE = "https://securepay.tinkoff.ru/rest/";
         private static string API_URL_DEBUG = "https://rest-api-test.tcsbank.ru/rest/";
         private readonly string terminalKey;
         private readonly string password;
