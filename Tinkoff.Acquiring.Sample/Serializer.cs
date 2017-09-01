@@ -31,7 +31,7 @@ namespace Tinkoff.Acquiring.Sample
                 var serializer = new DataContractJsonSerializer(typeof(T));
                 using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
                 {
-                    return (T)serializer.ReadObject(stream);
+                    return (T) serializer.ReadObject(stream);
                 }
             }
             catch

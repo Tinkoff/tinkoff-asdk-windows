@@ -25,12 +25,16 @@ namespace Tinkoff.Acquiring.Sdk.Requests
     /// </summary>
     sealed class GetCardListRequest : AcquiringRequest
     {
-        #region Properties
+        #region Overrides of AcquiringRequest
 
         /// <summary>
         /// Вовзвращает имя опреации.
         /// </summary>
         public override string Operation => "GetCardList";
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Возвращает идентификатор покупателя в системе Продавца.

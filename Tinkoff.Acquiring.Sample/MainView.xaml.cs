@@ -96,7 +96,7 @@ namespace Tinkoff.Acquiring.Sample
             }
             catch (Exception)
             {
-                return default(string);
+                return null;
             }
         }
     }

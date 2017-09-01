@@ -18,7 +18,9 @@
 
 using System;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 using Windows.Web.Http;
+using JetBrains.Annotations;
 using Tinkoff.Acquiring.Sdk.Requests;
 using Tinkoff.Acquiring.Sdk.Responses;
 
@@ -28,68 +30,81 @@ namespace Tinkoff.Acquiring.Sdk
     {
         #region Fields
 
-        private readonly Journal journal;
+        [NotNull] private readonly Uri url;
+        [NotNull] private readonly Journal journal;
 
         #endregion
 
         #region Ctor
 
-        public AcquiringApi(string url, Journal journal)
+        public AcquiringApi([NotNull] string url, [NotNull] Journal journal)
         {
-            Url = new Uri(url);
+            if (url == null) throw new ArgumentNullException(nameof(url));
+            if (journal == null) throw new ArgumentNullException(nameof(journal));
+
+            this.url = new Uri(url);
             this.journal = journal;
         }
 
         #endregion
 
-        #region Properties
-
-        public Uri Url { get; set; }
-
-        #endregion
-
         #region Internal Members
 
-        internal Task<InitResponse> Init(InitRequest request)
+        [ItemCanBeNull]
+        internal async Task<InitResponse> Init(InitRequest request)
         {
-            return SendAsync<InitResponse>(Url, new HttpFormUrlEncodedContent(request.ToDictionary()));
+            return await SendAsync<InitResponse>(request).ConfigureAwait(false);
         }
 
-        internal Task<FinishAuthorizeResponse> FinishAuthorize(FinishAuthorizeRequest request)
+        [ItemCanBeNull]
+        internal async Task<FinishAuthorizeResponse> FinishAuthorize(FinishAuthorizeRequest request)
         {
-            return SendAsync<FinishAuthorizeResponse>(Url, new HttpFormUrlEncodedContent(request.ToDictionary()));
+            return await SendAsync<FinishAuthorizeResponse>(request).ConfigureAwait(false);
         }
 
-        internal Task<ChargeResponse> Charge(ChargeRequest request)
+        [ItemCanBeNull]
+        internal async Task<ChargeResponse> Charge(ChargeRequest request)
         {
-            return SendAsync<ChargeResponse>(Url, new HttpFormUrlEncodedContent(request.ToDictionary()));
+            return await SendAsync<ChargeResponse>(request).ConfigureAwait(false);
         }
 
-        internal Task<GetStateResponse> GetState(GetStateRequest request)
+        [ItemCanBeNull]
+        internal async Task<GetStateResponse> GetState(GetStateRequest request)
         {
-            return SendAsync<GetStateResponse>(Url, new HttpFormUrlEncodedContent(request.ToDictionary()));
+            return await SendAsync<GetStateResponse>(request).ConfigureAwait(false);
         }
 
+        [ItemCanBeNull]
         internal async Task<GetCardListResponse> GetCardList(GetCardListRequest request)
         {
-            var response = await SendAsync<GetCardListResponse>(Url, new HttpFormUrlEncodedContent(request.ToDictionary()));
-            if (string.IsNullOrEmpty(response.ErrorCode))
+            var response = await SendAsync<GetCardListResponse>(request).ConfigureAwait(false);
+            if (response != null && string.IsNullOrEmpty(response.ErrorCode))
             {
                 response.Success = true;
-                response.Cards = response.RawData.To<Card[]>();
             }
+
             return response;
         }
 
-        internal Task<RemoveCardResponse> RemoveCard(RemoveCardRequest request)
+        [ItemCanBeNull]
+        internal async Task<RemoveCardResponse> RemoveCard(RemoveCardRequest request)
         {
-            return SendAsync<RemoveCardResponse>(Url, new HttpFormUrlEncodedContent(request.ToDictionary()));
+            return await SendAsync<RemoveCardResponse>(request).ConfigureAwait(false);
         }
 
         #endregion
 
         #region Private Members
 
+        [ItemCanBeNull]
+        private async Task<T> SendAsync<T>(AcquiringRequest request) where T : AcquiringResponse
+        {
+            var uri = new Uri(url, request.Operation);
+
+            return await SendAsync<T>(uri, GetContentFromRequest(request)).ConfigureAwait(false);
+        }
+
+        [ItemCanBeNull]
         private async Task<T> SendAsync<T>(Uri uri, IHttpContent content) where T : AcquiringResponse
         {
             journal.Log($"=== Sending POST request to {uri}");
@@ -101,6 +116,12 @@ namespace Tinkoff.Acquiring.Sdk
             journal.Log($"=== Got server response: {value}");
 
             return Serializer.Deserialize<T>(value);
+        }
+
+        [NotNull]
+        private static IHttpContent GetContentFromRequest(AcquiringRequest request)
+        {
+            return new HttpStringContent(Serializer.Serialize(request), UnicodeEncoding.Utf8, "application/json");
         }
 
         #endregion

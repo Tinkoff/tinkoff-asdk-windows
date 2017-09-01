@@ -41,21 +41,7 @@ namespace Tinkoff.Acquiring.Sdk
         /// <summary>
         /// Возвращает необработанные данные.
         /// </summary>
-        public string Value { get; private set; }
-
-        #endregion
-
-        #region Public Members
-
-        /// <summary>
-        /// Десериализует необработанные данные в указанный тип.
-        /// </summary>
-        /// <typeparam name="T">Тип, в который требуетя десериализовать необработанные данные.</typeparam>
-        /// <returns>Объект типа T.</returns>
-        public T To<T>()
-        {
-            return Serializer.To<T>(Value);
-        }
+        public string Value { get; }
 
         #endregion
     }

@@ -16,50 +16,53 @@
 
 #endregion
 
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Tinkoff.Acquiring.Sdk.Responses
 {
     /// <summary>
     /// Класс ответа API.
     /// </summary>
-    [DataContract]
     public abstract class AcquiringResponse
     {
+        #region Properties
+
         /// <summary>
         /// Возвращает идентификатор терминала, выдается Продавцу Банком.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(TerminalKey))]
         public string TerminalKey { get; internal set; }
 
         /// <summary>
         /// Возвращает успешность операции.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(Success))]
         public bool Success { get; internal set; }
 
         /// <summary>
         /// Возвращает код ошибки.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(ErrorCode))]
         public string ErrorCode { get; internal set; }
 
         /// <summary>
         /// Возвращает краткое описание ошибки.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(Message))]
         public string Message { get; internal set; }
 
         /// <summary>
         /// Возвращает подробное описание ошибки.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(Details))]
         public string Details { get; internal set; }
 
         /// <summary>
         /// Содержит необработанные данные.
         /// </summary>
-        [IgnoreDataMember]
+        [JsonIgnore]
         internal RawData RawData { get; set; }
+
+        #endregion
     }
 }

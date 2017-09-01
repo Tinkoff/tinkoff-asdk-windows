@@ -140,6 +140,7 @@
     <Compile Include="Responses\ChargeResponse.cs" />
     <Compile Include="Responses\FinishAuthorizeResponse.cs" />
     <Compile Include="Responses\GetCardListResponse.cs" />
+    <Compile Include="Responses\GetCardListResponseConverter.cs" />
     <Compile Include="Responses\GetStateResponse.cs" />
     <Compile Include="Builders\InitRequestBuilder.cs" />
     <Compile Include="Responses\InitResponse.cs" />

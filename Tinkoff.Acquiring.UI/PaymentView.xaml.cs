@@ -181,7 +181,7 @@ namespace Tinkoff.Acquiring.UI
                         SecureCode = cardModel.SecurityCode.Data
                     };
 
-                var response = await sdk.FinishAuthorize(paymentId, false, cardData, Email.Text);
+                var response = await sdk.FinishAuthorize(paymentId, false, cardData, Email.Text == string.Empty ? null : Email.Text);
 
                 if (response.IsThreeDsNeed)
                 {

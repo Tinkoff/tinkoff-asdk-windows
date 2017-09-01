@@ -16,89 +16,58 @@
 
 #endregion
 
-using System;
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Tinkoff.Acquiring.Sdk.Responses
 {
     /// <summary>
     /// Ответ на запрос подтверждения платежа карточными данными.
     /// </summary>
-    [DataContract]
     sealed class FinishAuthorizeResponse : AcquiringResponse
     {
-        #region Fields
-
-        [DataMember(Name = "Status")]
-        private string status;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
         /// Возвращает уникальный идентификатор транзакции в системе Банка.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(PaymentId))]
         public string PaymentId { get; internal set; }
 
         /// <summary>
         /// Возвращает номер заказа в системе Продавца.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(OrderId))]
         public string OrderId { get; internal set; }
 
         /// <summary>
         /// Вовращает сумму в копейках.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(Amount))]
         public decimal Amount { get; internal set; }
 
         /// <summary>
         /// Возвращает статус транзакции.
         /// </summary>
-        [IgnoreDataMember]
+        [JsonProperty(nameof(Status))]
         public PaymentStatus Status { get; internal set; }
 
         /// <summary>
         /// Возвращает Access Control Server Url.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(ACSUrl))]
         public string ACSUrl { get; internal set; }
 
         /// <summary>
         /// Возвращает данные продавца.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(MD))]
         public string MD { get; internal set; }
 
         /// <summary>
         /// Возвращает запрос на аутентификацию плательщика.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(PaReq))]
         public string PaReq { get; internal set; }
-
-        #endregion
-
-        #region Internal Members
-
-        [OnDeserialized]
-        internal void OnDeserialized(StreamingContext context)
-        {
-            if (status == "3DS_CHECKING")
-            {
-                Status = PaymentStatus.DS_CHECKING;
-                return;
-            }
-            if (status == "3DS_CHECKED")
-            {
-                Status = PaymentStatus.DS_CHECKED;
-                return;
-            }
-            PaymentStatus value;
-            Enum.TryParse(status, out value);
-            Status = value;
-        }
 
         #endregion
     }

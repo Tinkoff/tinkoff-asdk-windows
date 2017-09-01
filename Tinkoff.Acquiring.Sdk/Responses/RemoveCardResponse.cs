@@ -16,31 +16,34 @@
 
 #endregion
 
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Tinkoff.Acquiring.Sdk.Responses
 {
     /// <summary>
     /// Ответ на запрос удаления привязанной карты.
     /// </summary>
-    [DataContract]
     sealed class RemoveCardResponse : AcquiringResponse
     {
+        #region Properties
+
         /// <summary>
-        /// Возвращает идентификатор карты в системе Банка.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(CardId))]
         public int CardId { get;internal set; }
 
         /// <summary>
         /// Возвращает статус карты.
         /// </summary>
+        [JsonProperty(nameof(Status))]
         public CardStatus Status { get; internal set; }
 
         /// <summary>
         /// Возвращает идентификатор покупателя в системе Продавца.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(CustomerKey))]
         public string CustomerKey { get; internal set; }
+
+        #endregion
     }
 }

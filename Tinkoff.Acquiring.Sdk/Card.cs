@@ -16,63 +16,44 @@
 
 #endregion
 
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Tinkoff.Acquiring.Sdk
 {
     /// <summary>
     /// Класс привязанной карты.
     /// </summary>
-    [DataContract]
     public sealed class Card
     {
-        #region Fields
-
-        [DataMember(Name = "Status")]
-        private string status;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
         /// Возвращает номер карты.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(Pan))]
         public string Pan { get; internal set; }
+
 
         /// <summary>
         /// Возвращает идентификатор карты в системе Банка.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(CardId))]
         public string CardId { get; internal set; }
+
 
         /// <summary>
         /// Возвращает идентификатор рекуррентного платежа.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(RebillId))]
         public string RebillId { get; internal set; }
+
 
         /// <summary>
         /// Возвращает статус карты.
         /// </summary>
-        [IgnoreDataMember]
+        [JsonProperty(nameof(Status))]
         public CardStatus Status { get; internal set; }
 
-        #endregion
-
-        #region Internal Members
-
-        [OnDeserialized]
-        internal void OnDeserialized(StreamingContext context)
-        {
-            if (status == "A")
-                Status = CardStatus.ACTIVE;
-            else if (status == "I")
-                Status = CardStatus.INACTIVE;
-            else if (status == "D")
-                Status = CardStatus.DELETED;
-        }
 
         #endregion
     }

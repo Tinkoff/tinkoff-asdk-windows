@@ -16,26 +16,34 @@
 
 #endregion
 
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Tinkoff.Acquiring.Sdk
 {
     /// <summary>
     /// Статус карты.
     /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum CardStatus
     {
         /// <summary>
         /// Активна.
         /// </summary>
+        [EnumMember(Value = "A")]
         ACTIVE,
 
         /// <summary>
         /// Неактивна.
         /// </summary>
+        [EnumMember(Value = "I")]
         INACTIVE,
 
         /// <summary>
         /// Удалена.
         /// </summary>
+        [EnumMember(Value = "D")]
         DELETED
     }
 }
