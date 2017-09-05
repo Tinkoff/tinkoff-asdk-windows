@@ -16,6 +16,7 @@
 
 #endregion
 
+using Newtonsoft.Json.Linq;
 using Tinkoff.Acquiring.Sdk.Requests;
 
 namespace Tinkoff.Acquiring.Sdk.Builders
@@ -30,7 +31,7 @@ namespace Tinkoff.Acquiring.Sdk.Builders
 
         #endregion
 
-        #region Base Members
+        #region Overrides of AcquiringRequestBuilder<InitRequest>
 
         protected override void Validate()
         {
@@ -48,6 +49,7 @@ namespace Tinkoff.Acquiring.Sdk.Builders
         public InitRequestBuilder SetAmount(decimal value)
         {
             Request.Amount = value;
+
             return this;
         }
 
@@ -57,6 +59,7 @@ namespace Tinkoff.Acquiring.Sdk.Builders
         public InitRequestBuilder SetOrderId(string value)
         {
             Request.OrderId = value;
+
             return this;
         }
 
@@ -66,6 +69,7 @@ namespace Tinkoff.Acquiring.Sdk.Builders
         public InitRequestBuilder SetDescription(string value)
         {
             Request.Description = value;
+
             return this;
         }
 
@@ -75,6 +79,7 @@ namespace Tinkoff.Acquiring.Sdk.Builders
         public InitRequestBuilder SetPayForm(string value)
         {
             Request.PayForm = value;
+
             return this;
         }
 
@@ -84,6 +89,7 @@ namespace Tinkoff.Acquiring.Sdk.Builders
         public InitRequestBuilder SetCustomerKey(string value)
         {
             Request.CustomerKey = value;
+
             return this;
         }
 
@@ -93,6 +99,17 @@ namespace Tinkoff.Acquiring.Sdk.Builders
         public InitRequestBuilder SetRecurrent(bool value)
         {
             Request.Recurrent = value;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Устанавливает JSON объект с данными чека.
+        /// </summary>
+        public InitRequestBuilder SetReceipt(string value)
+        {
+            Request.Receipt = new JRaw(value);
+
             return this;
         }
 

@@ -20,22 +20,22 @@ namespace Tinkoff.Acquiring.Sdk
 {
     static class Fields
     {
-        public static string PASSWORD = "Password";
-        public static string TERMINALKEY = "TerminalKey";
-        public static string PAYMENTID = "PaymentId";
-        public static string SENDEMAIL = "SendEmail";
-        public static string TOKEN = "Token";
-        public static string DATA = "DATA";
-        public static string CARDDATA = "CardData";
-        public static string AMOUNT = "Amount";
-        public static string ORDERID = "OrderId";
-        public static string DESCRIPTION = "Description";
-        public static string PAYFORM = "PayForm";
-        public static string CUSTOMERKEY = "CustomerKey";
-        public static string RECURRENT = "Recurrent";
-        public static string REBILLID = "RebillId";
-        public static string CARDID = "CardId";
-        public static string EMAIL = "Email";
-        public static string INFOEMAIL = "InfoEmail";
+        public const string PASSWORD = "Password";
+        public const string TERMINALKEY = "TerminalKey";
+        public const string PAYMENTID = "PaymentId";
+        public const string SENDEMAIL = "SendEmail";
+        public const string TOKEN = "Token";
+        public const string DATA = "DATA";
+        public const string CARDDATA = "CardData";
+        public const string AMOUNT = "Amount";
+        public const string ORDERID = "OrderId";
+        public const string DESCRIPTION = "Description";
+        public const string PAYFORM = "PayForm";
+        public const string CUSTOMERKEY = "CustomerKey";
+        public const string RECURRENT = "Recurrent";
+        public const string REBILLID = "RebillId";
+        public const string CARDID = "CardId";
+        public const string EMAIL = "Email";
+        public const string INFOEMAIL = "InfoEmail";
     }
 }

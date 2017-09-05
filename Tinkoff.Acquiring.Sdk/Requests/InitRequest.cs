@@ -17,6 +17,8 @@
 #endregion
 
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Tinkoff.Acquiring.Sdk.Requests
 {
@@ -25,10 +27,7 @@ namespace Tinkoff.Acquiring.Sdk.Requests
     /// </summary>
     sealed class InitRequest : AcquiringRequest
     {
-        /// <summary>
-        /// Вовзвращает имя опреации.
-        /// </summary>
-        public override string Operation => "Init";
+        #region Properties
 
         /// <summary>
         /// Возвращает сумму в копейках.
@@ -60,22 +59,41 @@ namespace Tinkoff.Acquiring.Sdk.Requests
         /// </summary>
         public bool Recurrent { get; set; }
 
-        #region Methods
+        /// <summary>
+        /// Возвращает	JSON объект с данными чека.
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public JRaw Receipt { get; set; }
+
+        #endregion
+
+        #region Overrides of AcquiringRequest
+
+        /// <summary>
+        /// Возвращает имя операции.
+        /// </summary>
+        public override string Operation => "Init";
 
         public override IDictionary<string, string> ToDictionary()
         {
             var dictionary = base.ToDictionary();
             dictionary.Add(Fields.AMOUNT, string.Format("{0:0}", Amount));
+
             if (!string.IsNullOrEmpty(OrderId))
                 dictionary.Add(Fields.ORDERID, OrderId);
+
             if (!string.IsNullOrEmpty(Description))
                 dictionary.Add(Fields.DESCRIPTION, Description);
+
             if (!string.IsNullOrEmpty(PayForm))
                 dictionary.Add(Fields.PAYFORM, PayForm);
+
             if (!string.IsNullOrEmpty(CustomerKey))
                 dictionary.Add(Fields.CUSTOMERKEY, CustomerKey);
-            if(Recurrent)
+
+            if (Recurrent)
                 dictionary.Add(Fields.RECURRENT, "Y");
+
             return dictionary;
         }
 

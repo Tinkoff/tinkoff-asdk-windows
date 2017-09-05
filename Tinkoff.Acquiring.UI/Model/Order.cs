@@ -68,5 +68,10 @@ namespace Tinkoff.Acquiring.UI.Model
         /// реквизитов карты.
         /// </summary>
         public bool CustomKeyboard { get; set; } = true;
+
+        /// <summary>
+        /// Возвращает или устанавливает JSON объект с данными чека.
+        /// </summary>
+        public string Receipt { get; set; }
     }
 }
