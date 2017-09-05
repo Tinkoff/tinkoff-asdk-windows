@@ -70,7 +70,7 @@ namespace Tinkoff.Acquiring.Sdk.Requests
         #region Overrides of AcquiringRequest
 
         /// <summary>
-        /// Вовзвращает имя опреации.
+        /// Возвращает имя операции.
         /// </summary>
         public override string Operation => "Init";
 
