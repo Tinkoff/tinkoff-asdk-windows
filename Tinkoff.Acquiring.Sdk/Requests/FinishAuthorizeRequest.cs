@@ -25,10 +25,16 @@ namespace Tinkoff.Acquiring.Sdk.Requests
     /// </summary>
     sealed class FinishAuthorizeRequest : AcquiringRequest
     {
+        #region Overriders of AcquiringRequest
+
         /// <summary>
         /// Вовзвращает имя опреации.
         /// </summary>
         public override string Operation => "FinishAuthorize";
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Возвращает уникальный идентификатор транзакции в системе Банка.
@@ -50,6 +56,8 @@ namespace Tinkoff.Acquiring.Sdk.Requests
         /// </summary>
         public string InfoEmail { get; set; }
 
+        #endregion
+
         #region Methods
 
         public override IDictionary<string, string> ToDictionary()
@@ -57,11 +65,10 @@ namespace Tinkoff.Acquiring.Sdk.Requests
             var dictionary = base.ToDictionary();
             if (!string.IsNullOrEmpty(PaymentId))
                 dictionary.Add(Fields.PAYMENTID, PaymentId);
-            if (SendEmail && !string.IsNullOrEmpty(InfoEmail))
-            {
-                dictionary.Add(Fields.SENDEMAIL, SendEmail.ToString().ToLower());
-                dictionary.Add(Fields.INFOEMAIL, InfoEmail);
-            }
+
+            dictionary.Add(Fields.SENDEMAIL, SendEmail.ToString().ToLower());
+            dictionary.Add(Fields.INFOEMAIL, InfoEmail);
+
             if (!string.IsNullOrEmpty(CardData))
                 dictionary.Add(Fields.CARDDATA, CardData);
             return dictionary;

@@ -16,47 +16,33 @@
 
 #endregion
 
-using System.IO;
-using System.Runtime.Serialization.Json;
-using System.Text;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Tinkoff.Acquiring.Sdk.Responses;
 
 namespace Tinkoff.Acquiring.Sdk
 {
     static class Serializer
     {
+        [CanBeNull]
         public static T Deserialize<T>(string content) where T : AcquiringResponse
         {
             try
             {
-                var serializer = new DataContractJsonSerializer(typeof(T));
-                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
-                {
-                    var response = (T)serializer.ReadObject(stream);
-                    response.RawData = new RawData(content);
-                    return response;
-                }
+                var response = JsonConvert.DeserializeObject<T>(content);
+                response.RawData = new RawData(content);
+
+                return response;
             }
             catch
             {
-                return default(T);
+                return null;
             }
         }
 
-        public static T To<T>(string content)
+        public static string Serialize(object value)
         {
-            try
-            {
-                var serializer = new DataContractJsonSerializer(typeof(T));
-                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
-                {
-                    return (T)serializer.ReadObject(stream);
-                }
-            }
-            catch
-            {
-                return default(T);
-            }
+            return JsonConvert.SerializeObject(value);
         }
     }
 }

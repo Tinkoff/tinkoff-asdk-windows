@@ -17,6 +17,7 @@
 #endregion
 
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Tinkoff.Acquiring.Sdk.Requests
 {
@@ -28,18 +29,21 @@ namespace Tinkoff.Acquiring.Sdk.Requests
         #region Properties
 
         /// <summary>
-        /// Вовзвращает имя опреации.
+        /// Возвращает имя опреации.
         /// </summary>
+        [JsonIgnore]
         public abstract string Operation { get; }
 
         /// <summary>
         /// Возвращает идентификатор терминала, выдается Продавцу Банком.
         /// </summary>
+        [JsonProperty(nameof(TerminalKey))]
         public string TerminalKey { get; set; }
 
         /// <summary>
         /// Возвращает подпись запроса.
         /// </summary>
+        [JsonProperty(nameof(Token))]
         public string Token { get; set; }
 
         #endregion
@@ -51,7 +55,7 @@ namespace Tinkoff.Acquiring.Sdk.Requests
             return new Dictionary<string, string>
             {
                 {Fields.TERMINALKEY, TerminalKey},
-                { Fields.TOKEN, Token}
+                {Fields.TOKEN, Token}
             };
         }
 

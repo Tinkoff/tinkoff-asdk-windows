@@ -19,6 +19,7 @@
 using System;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography.Core;
+using JetBrains.Annotations;
 using Tinkoff.Acquiring.Sdk.Builders;
 
 namespace Tinkoff.Acquiring.Sdk
@@ -32,8 +33,8 @@ namespace Tinkoff.Acquiring.Sdk
     {
         #region Fields
 
-        private static string API_URL_RELEASE = "https://securepay.tinkoff.ru/rest/";
-        private static string API_URL_DEBUG = "https://rest-api-test.tcsbank.ru/rest/";
+        private const string API_URL_RELEASE = "https://securepay.tinkoff.ru/v2/";
+        private const string API_URL_DEBUG = "https://rest-api-test.tcsbank.ru/v2/";
         private readonly string terminalKey;
         private readonly string password;
         private readonly CryptographicKey publicKey;
@@ -62,8 +63,10 @@ namespace Tinkoff.Acquiring.Sdk
         /// <param name="terminalKey">Ключ терминала. Выдается после подключения к Тинькофф Эквайринг.</param>
         /// <param name="password">Пароль от терминала. Выдается вместе с terminalKey.</param>
         /// <param name="keyCreator"></param>
-        public AcquiringSdk(string terminalKey, string password, IKeyCreator keyCreator)
+        public AcquiringSdk(string terminalKey, string password, [NotNull] IKeyCreator keyCreator)
         {
+            if (keyCreator == null) throw new ArgumentNullException(nameof(keyCreator));
+
             this.terminalKey = terminalKey;
             this.password = password;
             publicKey = keyCreator.Create();
@@ -106,7 +109,7 @@ namespace Tinkoff.Acquiring.Sdk
         /// <param name="payForm">Название шаблона формы оплаты продавца.</param>
         /// <param name="recurrent">Регистрирует платеж как рекуррентный.</param>
         /// <returns>Уникальный идентификатор транзакции в системе Банка.</returns>
-        public async Task<string> Init(decimal amount, string orderId, string customerKey, string description = default(string), string payForm = default(string), bool recurrent = default(bool))
+        public async Task<string> Init(decimal amount, string orderId, string customerKey, string description = null, string payForm = null, bool recurrent = false)
         {
             var request = new InitRequestBuilder(password, terminalKey, journal)
                 .SetAmount(amount)
@@ -118,8 +121,9 @@ namespace Tinkoff.Acquiring.Sdk
                 .Build();
             try
             {
-                var response = await GetApi(request.Operation).Init(request);
-                if (response.Success) return response.PaymentId;
+                var response = await GetApi().Init(request);
+                if (response != null && response.Success) return response.PaymentId;
+
                 throw new AcquiringApiException(response);
             }
             catch (AcquiringApiException ex)
@@ -155,8 +159,9 @@ namespace Tinkoff.Acquiring.Sdk
 
             try
             {
-                var response = await GetApi(request.Operation).FinishAuthorize(request);
-                if (!response.Success) throw new AcquiringApiException(response);
+                var response = await GetApi().FinishAuthorize(request);
+                if (response == null || !response.Success) throw new AcquiringApiException(response);
+
                 return response.Status == PaymentStatus.DS_CHECKING
                     ? new ThreeDsData {IsThreeDsNeed = true, ACSUrl = response.ACSUrl, MD = response.MD, PaReq = response.PaReq}
                     : new ThreeDsData {IsThreeDsNeed = false};
@@ -228,8 +233,8 @@ namespace Tinkoff.Acquiring.Sdk
                 .Build();
             try
             {
-                var response = await GetApi(request.Operation).Charge(request);
-                if (response.Success)
+                var response = await GetApi().Charge(request);
+                if (response != null && response.Success)
                 {
                     return new PaymentInfo
                     {
@@ -238,6 +243,7 @@ namespace Tinkoff.Acquiring.Sdk
                         Status = response.Status
                     };
                 }
+
                 throw new AcquiringApiException(response);
             }
             catch (AcquiringApiException ex)
@@ -264,11 +270,9 @@ namespace Tinkoff.Acquiring.Sdk
                 .Build();
             try
             {
-                var response = await GetApi(request.Operation).GetState(request);
-                if (response.Success)
-                {
-                    return response.Status;
-                }
+                var response = await GetApi().GetState(request);
+                if (response != null && response.Success) return response.Status;
+
                 throw new AcquiringApiException(response);
             }
             catch (AcquiringApiException ex)
@@ -295,11 +299,9 @@ namespace Tinkoff.Acquiring.Sdk
                 .Build();
             try
             {
-                var response = await GetApi(request.Operation).GetCardList(request);
-                if (response.Success)
-                {
-                    return response.Cards;
-                }
+                var response = await GetApi().GetCardList(request);
+                if (response != null && response.Success) return response.Cards;
+
                 throw new AcquiringApiException(response);
             }
             catch (AcquiringApiException ex)
@@ -328,11 +330,9 @@ namespace Tinkoff.Acquiring.Sdk
                 .Build();
             try
             {
-                var response = await GetApi(request.Operation).RemoveCard(request);
-                if (response.Success)
-                {
-                    return true;
-                }
+                var response = await GetApi().RemoveCard(request);
+                if (response != null && response.Success) return true;
+
                 throw new AcquiringApiException(response);
             }
             catch (AcquiringApiException ex)
@@ -351,10 +351,9 @@ namespace Tinkoff.Acquiring.Sdk
         /// Позволяет использовать свой механизм управления логами.
         /// </summary>
         /// <param name="logger">Логгер.</param>
-        public void SetLogger(ILogger logger)
+        public void SetLogger([NotNull] ILogger logger)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
 
             journal.SetLogger(logger);
         }
@@ -363,11 +362,11 @@ namespace Tinkoff.Acquiring.Sdk
 
         #region Private Members
 
-        private AcquiringApi GetApi(string operation)
+        private AcquiringApi GetApi()
         {
             return IsDebug
-                ? new AcquiringApi(string.Concat(API_URL_DEBUG, operation), journal)
-                : new AcquiringApi(string.Concat(API_URL_RELEASE, operation), journal);
+                ? new AcquiringApi(API_URL_DEBUG, journal)
+                : new AcquiringApi(API_URL_RELEASE, journal);
         }
 
         #endregion

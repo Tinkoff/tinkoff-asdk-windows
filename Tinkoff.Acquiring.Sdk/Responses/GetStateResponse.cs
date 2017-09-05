@@ -16,65 +16,34 @@
 
 #endregion
 
-using System;
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Tinkoff.Acquiring.Sdk.Responses
 {
     /// <summary>
     /// Ответ на запрос статуса платежа.
     /// </summary>
-    [DataContract]
     sealed class GetStateResponse : AcquiringResponse
     {
-        #region Fields
-
-        [DataMember(Name = "Status")]
-        private string status;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
         /// Возвращает номер заказа в системе Продавца.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(OrderId))]
         public string OrderId { get; internal set; }
 
         /// <summary>
         /// Возвращает статус транзакции.
         /// </summary>
-        [IgnoreDataMember]
+        [JsonProperty(nameof(Status))]
         public PaymentStatus Status { get; internal set; }
 
         /// <summary>
         /// Возвращает уникальный идентификатор транзакции в системе Банка.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(PaymentId))]
         public string PaymentId { get; internal set; }
-
-        #endregion
-
-        #region Internal Members
-
-        [OnDeserialized]
-        internal void OnDeserialized(StreamingContext context)
-        {
-            if (status == "3DS_CHECKING")
-            {
-                Status = PaymentStatus.DS_CHECKING;
-                return;
-            }
-            if (status == "3DS_CHECKED")
-            {
-                Status = PaymentStatus.DS_CHECKED;
-                return;
-            }
-            PaymentStatus value;
-            Enum.TryParse(status, out value);
-            Status = value;
-        }
 
         #endregion
     }

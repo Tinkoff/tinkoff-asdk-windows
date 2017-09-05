@@ -16,20 +16,23 @@
 
 #endregion
 
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Tinkoff.Acquiring.Sdk.Responses
 {
     /// <summary>
     /// Ответ на запрос списка карт.
     /// </summary>
-    [DataContract]
+    [JsonConverter(typeof(GetCardListResponseConverter))]
     sealed class GetCardListResponse : AcquiringResponse
     {
+        #region Properties
+
         /// <summary>
         /// Возвращает список карт.
         /// </summary>
-        [DataMember]
         public Card[] Cards { get; internal set; }
+
+        #endregion
     }
 }

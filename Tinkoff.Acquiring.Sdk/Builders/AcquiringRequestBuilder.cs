@@ -66,6 +66,7 @@ namespace Tinkoff.Acquiring.Sdk.Builders
             }
             Request.TerminalKey = terminalKey;
             Request.Token = MakeToken();
+
             return Request;
         }
 
@@ -84,11 +85,13 @@ namespace Tinkoff.Acquiring.Sdk.Builders
             var dictionary = Request.ToDictionary();
             dictionary.Remove(Fields.TOKEN);
             dictionary.Add(Fields.PASSWORD, password);
+
             var builder = new StringBuilder();
             foreach (var pair in dictionary.OrderBy(pair => pair.Key))
             {
                 builder.Append(pair.Value);
             }
+
             return CryptoUtils.Sha256(builder.ToString());
         }
 

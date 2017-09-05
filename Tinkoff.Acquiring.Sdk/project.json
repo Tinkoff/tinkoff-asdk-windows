@@ -1,6 +1,8 @@
 ﻿{
   "dependencies": {
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0"
+    "JetBrains.Annotations": "10.2.1",
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.4.0",
+    "Newtonsoft.Json": "10.0.3"
   },
   "frameworks": {
     "uap10.0": {}

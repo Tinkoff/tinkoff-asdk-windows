@@ -16,8 +16,8 @@
 
 #endregion
 
-using System;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Tinkoff.Acquiring.Sdk.Responses
 {
@@ -27,28 +27,32 @@ namespace Tinkoff.Acquiring.Sdk.Responses
     [DataContract]
     sealed class ChargeResponse : AcquiringResponse
     {
+        #region Properties
+
         /// <summary>
         /// Возвращает номер заказа в системе Продавца.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(OrderId))]
         public string OrderId { get; internal set; }
 
         /// <summary>
         /// Возвращает статус транзакции.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(Status))]
         public PaymentStatus Status { get; internal set; }
 
         /// <summary>
         /// Возвращает уникальный идентификатор транзакции в системе Банка.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(PaymentId))]
         public int PaymentId { get; internal set; }
 
         /// <summary>
         /// Возвращает сумму списания в копейках.
         /// </summary>
-        [DataMember]
+        [JsonProperty(nameof(Amount))]
         public decimal Amount { get; internal set; }
+
+        #endregion
     }
 }

@@ -23,6 +23,7 @@ using Windows.Foundation;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
 using Windows.Web.Http.Headers;
+using JetBrains.Annotations;
 
 namespace Tinkoff.Acquiring.Sdk
 {
@@ -38,7 +39,7 @@ namespace Tinkoff.Acquiring.Sdk
         /// </summary>
         /// <param name="uri">URI запроса.</param>
         /// <param name="token">Токен, который может быть использован для запроса отмены асинхронной операции.</param>
-        /// <returns>Объект, представляющий асинхронный операцию.</returns>
+        /// <returns>Объект, представляющий асинхронную операцию.</returns>
         public static Task<IHttpContent> PostAsync(Uri uri, CancellationToken token = default(CancellationToken))
         {
             using (var request = new HttpRequestMessage(HttpMethod.Post, uri))
@@ -53,7 +54,7 @@ namespace Tinkoff.Acquiring.Sdk
         /// <param name="uri">URI запроса.</param>
         /// <param name="content">Содержимое HTTP-запроса.</param>
         /// <param name="token">Токен, который может быть использован для запроса отмены асинхронной операции.</param>
-        /// <returns>Объект, представляющий асинхронный операцию.</returns>
+        /// <returns>Объект, представляющий асинхронную операцию.</returns>
         public static Task<IHttpContent> PostAsync(Uri uri, IHttpContent content, CancellationToken token = default(CancellationToken))
         {
             using (var request = new HttpRequestMessage(HttpMethod.Post, uri))
@@ -72,12 +73,13 @@ namespace Tinkoff.Acquiring.Sdk
         /// </summary>
         /// <param name="request">The HTTP request message to send.</param>
         /// <param name="token">Токен, который может быть использован для запроса отмены асинхронной операции.</param>
-        /// <returns>Объект, представляющий асинхронный операцию.</returns>
+        /// <returns>Объект, представляющий асинхронную операцию.</returns>
         private static async Task<IHttpContent> SendRequestAsync(HttpRequestMessage request, CancellationToken token)
         {
             using (var response = await SendRequestAsync(request).AsTask(token).ConfigureAwait(false))
             {
                 response.EnsureSuccessStatusCode();
+
                 return response.Content;
             }
         }
@@ -86,7 +88,7 @@ namespace Tinkoff.Acquiring.Sdk
         /// Выполняет асинхронный запрос.
         /// </summary>
         /// <param name="request">The HTTP request message to send.</param>
-        /// <returns>Объект, представляющий асинхронный операцию.</returns>
+        /// <returns>Объект, представляющий асинхронную операцию.</returns>
         private static IAsyncOperationWithProgress<HttpResponseMessage, HttpProgress> SendRequestAsync(HttpRequestMessage request)
         {
             using (var protocolFilter = new HttpBaseProtocolFilter())
@@ -96,6 +98,7 @@ namespace Tinkoff.Acquiring.Sdk
                     protocolFilter.AutomaticDecompression = true;
                     client.DefaultRequestHeaders.AcceptEncoding.Add(new HttpContentCodingWithQualityHeaderValue("gzip"));
                     client.DefaultRequestHeaders.AcceptEncoding.Add(new HttpContentCodingWithQualityHeaderValue("deflate"));
+
                     return client.SendRequestAsync(request);
                 }
             }
