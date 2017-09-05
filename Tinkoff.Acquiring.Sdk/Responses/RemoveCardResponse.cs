@@ -28,6 +28,7 @@ namespace Tinkoff.Acquiring.Sdk.Responses
         #region Properties
 
         /// <summary>
+        /// Возвращает идентификатор карты в системе Банка.
         /// </summary>
         [JsonProperty(nameof(CardId))]
         public int CardId { get;internal set; }
