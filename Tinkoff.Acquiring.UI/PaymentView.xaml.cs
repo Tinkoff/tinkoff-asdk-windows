@@ -168,7 +168,7 @@ namespace Tinkoff.Acquiring.UI
             try
             {
                 var sdk = AcquiringUI.GetAcquiringSdk();
-                var paymentId = await sdk.Init(order.Amount, order.OrderId, order.CustomerKey);
+                var paymentId = await sdk.Init(order.Amount, order.OrderId, order.CustomerKey, receipt:order.Receipt);
                 if (string.IsNullOrEmpty(paymentId))
                     return;
 

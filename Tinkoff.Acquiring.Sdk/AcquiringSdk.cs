@@ -108,17 +108,22 @@ namespace Tinkoff.Acquiring.Sdk
         /// <param name="description">Краткое описание.</param>
         /// <param name="payForm">Название шаблона формы оплаты продавца.</param>
         /// <param name="recurrent">Регистрирует платеж как рекуррентный.</param>
+        /// <param name="receipt">JSON объект с данными чека.</param>
         /// <returns>Уникальный идентификатор транзакции в системе Банка.</returns>
-        public async Task<string> Init(decimal amount, string orderId, string customerKey, string description = null, string payForm = null, bool recurrent = false)
+        public async Task<string> Init(decimal amount, string orderId, string customerKey, string description = null, string payForm = null, bool recurrent = false, string receipt = null)
         {
-            var request = new InitRequestBuilder(password, terminalKey, journal)
+            var builder = new InitRequestBuilder(password, terminalKey, journal)
                 .SetAmount(amount)
                 .SetOrderId(orderId)
                 .SetCustomerKey(customerKey)
                 .SetDescription(description)
                 .SetPayForm(payForm)
-                .SetRecurrent(recurrent)
-                .Build();
+                .SetRecurrent(recurrent);
+
+            if (receipt != null)
+                builder.SetReceipt(receipt);
+
+            var request = builder.Build();
             try
             {
                 var response = await GetApi().Init(request);
