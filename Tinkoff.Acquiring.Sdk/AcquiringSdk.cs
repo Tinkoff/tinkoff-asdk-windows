@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography.Core;
 using JetBrains.Annotations;
@@ -109,8 +110,14 @@ namespace Tinkoff.Acquiring.Sdk
         /// <param name="payForm">Название шаблона формы оплаты продавца.</param>
         /// <param name="recurrent">Регистрирует платеж как рекуррентный.</param>
         /// <param name="receipt">JSON объект с данными чека.</param>
+        /// <param name="data">
+        /// JSON объект содержащий дополнительные параметры в виде "ключ":"значение".
+        /// Данные параметры будут переданы на страницу оплаты (в случае ее кастомизации).
+        /// Максимальная длина для каждого передаваемого параметра: Ключ – 20 знаков, Значение – 100 знаков. 
+        /// Максимальное количество пар «ключ-значение» не может превышать 20.
+        /// </param>
         /// <returns>Уникальный идентификатор транзакции в системе Банка.</returns>
-        public async Task<string> Init(decimal amount, string orderId, string customerKey, string description = null, string payForm = null, bool recurrent = false, string receipt = null)
+        public async Task<string> Init(decimal amount, string orderId, string customerKey, string description = null, string payForm = null, bool recurrent = false, string receipt = null, IReadOnlyList<KeyValuePair<string, string>> data = null)
         {
             var builder = new InitRequestBuilder(password, terminalKey, journal)
                 .SetAmount(amount)
@@ -122,6 +129,9 @@ namespace Tinkoff.Acquiring.Sdk
 
             if (receipt != null)
                 builder.SetReceipt(receipt);
+
+            if (data != null)
+                builder.AddData(data);
 
             var request = builder.Build();
             try

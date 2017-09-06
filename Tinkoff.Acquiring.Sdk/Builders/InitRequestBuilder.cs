@@ -16,6 +16,9 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Tinkoff.Acquiring.Sdk.Requests;
 
@@ -109,6 +112,34 @@ namespace Tinkoff.Acquiring.Sdk.Builders
         public InitRequestBuilder SetReceipt(string value)
         {
             Request.Receipt = new JRaw(value);
+
+            return this;
+        }
+
+        public InitRequestBuilder AddData([NotNull] string key, [CanBeNull] string value)
+        {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (Request.Data.Count >= 20) throw new InvalidOperationException("You can not pass more than 20 key-value pairs.");
+            if (key.Length > 20) throw new ArgumentOutOfRangeException(nameof(key), "Key can not be longer than 20.");
+            if (value?.Length > 100) throw new ArgumentOutOfRangeException(nameof(value), "Value can not be longer than 100.");
+
+            Request.Data.Add(key, value);
+
+            return this;
+        }
+
+        public InitRequestBuilder AddData([NotNull] IReadOnlyList<KeyValuePair<string, string>> data)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (Request.Data.Count + data.Count > 20) throw new InvalidOperationException("You can not pass more than 20 key-value pairs.");
+
+            foreach (var pair in data)
+            {
+                if (pair.Key.Length > 20) throw new ArgumentOutOfRangeException(nameof(pair.Key), "Key can not be longer than 20.");
+                if (pair.Value?.Length > 100) throw new ArgumentOutOfRangeException(nameof(pair.Value), "Value can not be longer than 100.");
+
+                Request.Data.Add(pair.Key, pair.Value);
+            }
 
             return this;
         }

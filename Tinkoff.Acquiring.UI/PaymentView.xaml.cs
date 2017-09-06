@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -168,7 +169,7 @@ namespace Tinkoff.Acquiring.UI
             try
             {
                 var sdk = AcquiringUI.GetAcquiringSdk();
-                var paymentId = await sdk.Init(order.Amount, order.OrderId, order.CustomerKey, receipt:order.Receipt);
+                var paymentId = await sdk.Init(order.Amount, order.OrderId, order.CustomerKey, receipt: order.Receipt);
                 if (string.IsNullOrEmpty(paymentId))
                     return;
 
