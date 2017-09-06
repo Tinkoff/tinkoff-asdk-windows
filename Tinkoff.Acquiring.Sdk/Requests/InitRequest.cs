@@ -17,6 +17,7 @@
 #endregion
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -27,6 +28,15 @@ namespace Tinkoff.Acquiring.Sdk.Requests
     /// </summary>
     sealed class InitRequest : AcquiringRequest
     {
+        #region Constructor
+
+        public InitRequest()
+        {
+            Data = new Dictionary<string, string>();
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -57,13 +67,24 @@ namespace Tinkoff.Acquiring.Sdk.Requests
         /// <summary>
         /// Возвращает параметр, который определяет регистрировать платеж как рекуррентный или нет.
         /// </summary>
+        [JsonIgnore]
         public bool Recurrent { get; set; }
 
         /// <summary>
-        /// Возвращает	JSON объект с данными чека.
+        /// Служебное поле для сериализации <see cref="Recurrent"/>.
+        /// </summary>
+        [JsonProperty(nameof(Recurrent))]
+        public string SerializableRecurrent => Recurrent ? "Y" : null;
+
+        /// <summary>
+        /// Возвращает JSON объект с данными чека.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public JRaw Receipt { get; set; }
+
+        [NotNull]
+        [JsonProperty("DATA")]
+        public IDictionary<string, string> Data { get; }
 
         #endregion
 

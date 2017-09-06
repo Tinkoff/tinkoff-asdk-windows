@@ -19,6 +19,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using Tinkoff.Acquiring.Sdk.Requests;
 
 namespace Tinkoff.Acquiring.Sdk.Builders
@@ -29,14 +30,16 @@ namespace Tinkoff.Acquiring.Sdk.Builders
 
         private readonly string password;
         private readonly string terminalKey;
-        private readonly Journal journal;
+        [NotNull] private readonly Journal journal;
 
         #endregion
 
         #region Ctor
 
-        protected AcquiringRequestBuilder(string password, string terminalKey, Journal journal)
+        protected AcquiringRequestBuilder(string password, string terminalKey, [NotNull] Journal journal)
         {
+            if (journal == null) throw new ArgumentNullException(nameof(journal));
+
             this.password = password;
             this.terminalKey = terminalKey;
             this.journal = journal;
@@ -47,6 +50,7 @@ namespace Tinkoff.Acquiring.Sdk.Builders
 
         #region Properties
 
+        [NotNull]
         protected T Request { get; }
 
         #endregion
